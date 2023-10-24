@@ -1,0 +1,398 @@
+
+Task #1
+ – Calculating the price to park.
+A customer inputs the day, the hour of arrival excluding
+minutes (for example 15:45 would be 15), the number of
+hours to leave their car, and a frequent parking number
+if available. If the frequent parking number has an
+incorrect check digit, then no discount can be applied.
+The price to park, based on the day, the hour of arrival,
+the number of hours of parking required and any
+discount available, is calculated and displayed.
+
+Code :
+#include <iostream>
+using namespace std;
+
+const int morninghour = 8, eveninghour = 16, midnighthour = 24;
+const int maxparking[] = {8, 2, 2, 2, 2, 2, 4};
+const int hourprice[] = {2, 10, 10, 10, 10, 10, 3};
+
+int main() {
+    int parkingday, arrivaltime, parkinghours, parkingprice, frequentparknum, checkdigit, digit1, digit2, digit3, digit4, digit5;
+    double discount, totalpayable;
+    bool choice;
+
+    cout << "Welcome to Parking System" << endl;
+
+    do {
+        cout << "Sunday=0, Monday=1, Tuesday=2, Wednesday=3, Thursday=4, Friday=5, Saturday=6" << endl;
+        cout << "INPUT DAY NUMBER: ";
+        cin >> parkingday;
+    } while (parkingday < 0 || parkingday > 6);
+
+    do {
+        cout << "Parking Hours: 8:00 till 24:00, No Parking from 24:00 till 7 the morning" << endl;
+        cout << "INPUT ARRIVAL TIME: ";
+        cin >> arrivaltime;
+    } while (arrivaltime < morninghour || arrivaltime > midnighthour);
+
+    do {
+        cout << "Sunday Max: 8 hours, Saturday Max 4 Hours, Weekdays Max 2 hours" << endl;
+        cout << "INPUT PARKING HOURS: ";
+        cin >> parkinghours;
+    } while (parkinghours < 0 || parkinghours > maxparking[parkingday]);
+
+    if (arrivaltime < eveninghour) {
+        parkingprice = parkinghours * hourprice[parkingday];
+    } else {
+        parkingprice = 2;
+    }
+
+    cout << "Do you have frequent parking number? True for yes, False for No: ";
+    cin >> choice;
+
+    if (choice) {
+        cout << "Enter your 5 digit frequent Parking number, one digit at a time" << endl;
+        cout << "Digit 1: ";
+        cin >> digit1;
+        cout << "Digit 2: ";
+        cin >> digit2;
+        cout << "Digit 3: ";
+        cin >> digit3;
+        cout << "Digit 4: ";
+        cin >> digit4;
+        cout << "Digit 5: ";
+        cin >> digit5;
+
+        frequentparknum = (5 * digit1) + (4 * digit2) + (3 * digit3) + (2 * digit4);
+        checkdigit = 11 - (frequentparknum % 11);
+
+        if (checkdigit == digit5) {
+            if (arrivaltime >= eveninghour) {
+                discount = parkingprice / 2;
+            } else {
+                discount = (parkingprice / 100) * 10;
+            }
+        } else {
+            discount = 0;
+        }
+    } else {
+        discount = 0;
+    }
+
+    totalpayable = parkingprice - discount;
+
+    cout << "Parking day selected is: " << parkingday << endl;
+    cout << "Arrival time in Parking: " << arrivaltime << endl;
+    cout << "Total number of hours to leave car in parking: " << parkinghours << endl;
+    cout << "Total Price of Parking is: " << parkingprice << endl;
+    cout << "Discount: " << discount << endl;
+    cout << "Total amount to be paid: " << totalpayable << endl;
+
+    return 0;
+}
+
+Task 2 – Keeping a total of the payments.
+Extend Task 1 to keep a daily total of payments made for
+parking. The daily total is zeroed at the start of the day.
+For the simulation, each customer inputs the amount
+paid, this must be greater than or equal to the amount
+displayed. There is no change given so the amount input
+may exceed the amount displayed. Each customer
+payment is added to the daily total, and this total is
+displayed at the end of the day
+Code:
+#include <iostream>
+using namespace std;
+
+const int morninghour = 8, eveninghour = 16, midnighthour = 24;
+const int maxparking[] = {8, 2, 2, 2, 2, 2, 4};
+const int hourprice[] = {2, 10, 10, 10, 10, 10, 3};
+
+int main() {
+    int parkingday, arrivaltime, parkinghours, frequentparknum, digit1, digit2, digit3, digit4, digit5;
+    double discount, totalpayable, customeramount;
+    bool choice, parkingclosed, exitParking;
+
+    double dailytotal = 0; // Initialize the daily total
+
+    while (true) {
+        // Step 1: Collect parking information
+
+        do {
+            cout << "Select the parking day (0: Sunday, 1: Monday, 2: Tuesday, 3: Wednesday, 4: Thursday, 5: Friday, 6: Saturday): ";
+            cin >> parkingday;
+            if (parkingday < 0 || parkingday > 6){
+                cout <<"Wrong day selection. Pick from 0 to 6 "<<endl;
+            }
+            
+        } while (parkingday < 0 || parkingday > 6);
+
+        do {
+            cout << "Parking Hours: 8:00 till 24:00, No Parking from 24:00 till 7 in the morning" << endl;
+            cout << "Enter the arrival time (0-23): ";
+            cin >> arrivaltime;
+
+            if (arrivaltime < morninghour || arrivaltime >= midnighthour) {
+                cout << "Wrong arrival time. Enter again." << endl;
+            }
+        } while (arrivaltime < morninghour || arrivaltime >= midnighthour);
+        
+        do {
+            cout << "Sunday Max: 8 hours, Saturday Max 4 Hours, Weekdays Max 2 hours" << endl;
+            cout << "INPUT PARKING HOURS: ";
+            cin >> parkinghours;
+
+            if (parkinghours < 0 || parkinghours > maxparking[parkingday]) {
+                cout<<"Wrong Hours. Enter again." << endl;
+            }
+        } while (parkinghours < 0 || parkinghours > maxparking[parkingday]);
+
+        // Step 2: Frequent parking discount (if any)
+        cout << "Do you have a frequent parking number? (1 for Yes, 0 for No): ";
+        cin >> choice;
+
+        if (choice) {
+            cout << "Enter your 5-digit frequent parking number (one digit at a time):" << endl;
+            cout << "Digit 1: ";
+            cin >> digit1;
+            cout << "Digit 2: ";
+            cin >> digit2;
+            cout << "Digit 3: ";
+            cin >> digit3;
+            cout << "Digit 4: ";
+            cin >> digit4;
+            cout << "Digit 5: ";
+            cin >> digit5;
+
+            frequentparknum = (5 * digit1) + (4 * digit2) + (3 * digit3) + (2 * digit4);
+            int checkdigit = 11 - (frequentparknum % 11);
+
+            if (checkdigit == digit5) {
+                if (arrivaltime >= eveninghour) {
+                    discount = parkinghours * hourprice[parkingday] / 2;
+                } else {
+                    discount = (parkinghours * hourprice[parkingday] * 10) / 100;
+                }
+            } else {
+                discount = 0;
+            }
+        } else {
+            discount = 0;
+        }
+
+        // Task 3: Calculate the fair price based on departure time
+        int departuretime, pricebefore16, priceafter16, newprice;
+
+        cout << "Please Enter your departure time: ";
+        cin >> departuretime;
+
+        if (departuretime <= eveninghour) {
+            pricebefore16 = parkinghours * hourprice[parkingday];
+            priceafter16 = 0;
+        } else {
+            pricebefore16 = (eveninghour - arrivaltime) * hourprice[parkingday];
+            priceafter16 = 2;
+        }
+
+        newprice = pricebefore16 + priceafter16;
+
+        totalpayable = newprice - discount;
+
+        // Display the customer's payment options and calculate the daily total
+        
+        do {
+            cout << "Please Enter the amount you want to pay: ";
+            cin >> customeramount;
+
+            if (customeramount < totalpayable) {
+                cout << "Amount you entered is less. Enter again: ";
+            } else if (customeramount > totalpayable) {
+                cout << "Amount you entered is greater. Enter again: ";
+            } else {
+                cout << "Price is " << customeramount << endl;
+                break; // Exit the loop when the correct amount is entered
+            }
+        } while (true);
+
+        dailytotal += customeramount;
+        cout << "Total Sale till now is: " << dailytotal << endl;
+
+        cout << "PARKING CLOSED? (1 for Yes, 0 for FALSE to Input Next Customer): ";
+        cin >> parkingclosed;
+
+        if (!parkingclosed) {
+            parkingday = 0;
+            arrivaltime = 0;
+            parkinghours = 0;
+            frequentparknum = 0;
+            discount = 0;
+            totalpayable = 0;
+            choice = false; // Reset the choice for the next customer
+
+            cout << "Next Customer, please provide the following information:" << endl;
+        } else {
+            cout << "EXIT PARKING? (1 for Yes, 0 for FALSE to Input Next Day): ";
+            cin >> exitParking;
+
+            if (!exitParking) {
+                parkingday = 0;
+                arrivaltime = 0;
+                parkinghours = 0;
+                frequentparknum = 0;
+                discount = 0;
+                totalpayable = 0;
+                choice = false; // Reset the choice for the next customer
+
+                cout << "Next Day, please provide the following information:" << endl;
+            }
+        }
+
+        if (exitParking) {
+            cout << "Total Daily Amount = " << dailytotal << endl;
+            break;
+        }
+    }
+    
+    return 0;
+}
+Task #3 
+#include <iostream>
+using namespace std;
+
+const int morninghour = 8, eveninghour = 16, midnighthour = 24;
+const int maxparking[] = {8, 2, 2, 2, 2, 2, 4};
+const int hourprice[] = {2, 10, 10, 10, 10, 10, 3};
+
+int main() {
+    int parkingday, arrivaltime, parkinghours, frequentparknum, digit1, digit2, digit3, digit4, digit5;
+    double discount, totalpayable, customeramount;
+    bool choice, parkingclosed, exitParking;
+
+    double dailytotal = 0; // Initialize the daily total
+
+    while (true) {
+        // Step 1: Collect parking information
+
+        do {
+            cout << "Select the parking day (0: Sunday, 1: Monday, 2: Tuesday, 3: Wednesday, 4: Thursday, 5: Friday, 6: Saturday): ";
+            cin >> parkingday;
+            if (parkingday < 0 || parkingday > 6){
+                cout <<"Wrong day selection. Pick from 0 to 6 "<<endl;
+            }
+            
+        } while (parkingday < 0 || parkingday > 6);
+
+        do {
+            cout << "Parking Hours: 8:00 till 24:00, No Parking from 24:00 till 7 in the morning" << endl;
+            cout << "Enter the arrival time (0-23): ";
+            cin >> arrivaltime;
+
+            if (arrivaltime < morninghour || arrivaltime >= midnighthour) {
+                cout << "Wrong arrival time. Enter again." << endl;
+            }
+        } while (arrivaltime < morninghour || arrivaltime >= midnighthour);
+        
+        do {
+            cout << "Sunday Max: 8 hours, Saturday Max 4 Hours, Weekdays Max 2 hours" << endl;
+            cout << "INPUT PARKING HOURS: ";
+            cin >> parkinghours;
+
+            if (parkinghours < 0 || parkinghours > maxparking[parkingday]) {
+                cout<<"Wrong Hours. Enter again." << endl;
+            }
+        } while (parkinghours < 0 || parkinghours > maxparking[parkingday]);
+
+        // Step 2: Frequent parking discount (if any)
+        cout << "Do you have a frequent parking number? (1 for Yes, 0 for No): ";
+        cin >> choice;
+
+        if (choice) {
+            cout << "Enter your 5-digit frequent parking number (one digit at a time):" << endl;
+            cout << "Digit 1: ";
+            cin >> digit1;
+            cout << "Digit 2: ";
+            cin >> digit2;
+            cout << "Digit 3: ";
+            cin >> digit3;
+            cout << "Digit 4: ";
+            cin >> digit4;
+            cout << "Digit 5: ";
+            cin >> digit5;
+
+            frequentparknum = (5 * digit1) + (4 * digit2) + (3 * digit3) + (2 * digit4);
+            int checkdigit = 11 - (frequentparknum % 11);
+
+            if (checkdigit == digit5) {
+                if (arrivaltime >= eveninghour) {
+                    discount = parkinghours * hourprice[parkingday] / 2;
+                } else {
+                    discount = (parkinghours * hourprice[parkingday] * 10) / 100;
+                }
+            } else {
+                discount = 0;
+            }
+        } else {
+            discount = 0;
+        }
+
+        totalpayable = parkinghours * hourprice[parkingday] - discount;
+
+        // Display the customer's payment options and calculate the daily total
+        
+        do {
+            cout << "Please Enter the amount you want to pay: ";
+            cin >> customeramount;
+
+            if (customeramount < totalpayable) {
+                cout << "Amount you entered is less. Enter again: ";
+            } else if (customeramount > totalpayable) {
+                cout << "Amount you entered is greater. Enter again: ";
+            } else {
+                cout << "Price is " << customeramount << endl;
+                break; // Exit the loop when the correct amount is entered
+            }
+        } while (true);
+
+        dailytotal += customeramount;
+        cout << "Total Sale till now is: " << dailytotal << endl;
+
+        cout << "PARKING CLOSED? (1 for Yes, 0 for FALSE to Input Next Customer): ";
+        cin >> parkingclosed;
+
+        if (!parkingclosed) {
+            parkingday = 0;
+            arrivaltime = 0;
+            parkinghours = 0;
+            frequentparknum = 0;
+            discount = 0;
+            totalpayable = 0;
+            choice = false; // Reset the choice for the next customer
+
+            cout << "Next Customer, please provide the following information:" << endl;
+        } else {
+            cout << "EXIT PARKING? (1 for Yes, 0 for FALSE to Input Next Day): ";
+            cin >> exitParking;
+
+            if (!exitParking) {
+                parkingday = 0;
+                arrivaltime = 0;
+                parkinghours = 0;
+                frequentparknum = 0;
+                discount = 0;
+                totalpayable = 0;
+                choice = false; // Reset the choice for the next customer
+
+                cout << "Next Day, please provide the following information:" << endl;
+            }
+        }
+
+        if (exitParking) {
+            cout << "Total Daily Amount = " << dailytotal << endl;
+            break;
+        }
+    }
+    
+    return 0;
+}
